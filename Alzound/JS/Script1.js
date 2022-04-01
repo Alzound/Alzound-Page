@@ -48,6 +48,22 @@ function WhileData()
 document.getElementById("while").innerHTML = text;
 }
 
+function CheckData()
+{
+    let entra(true); 
+    let text = ""; 
+    var Chara = ['@'];
+    document.getElementById("Email").innerHTML = text;
+    for(let i = 0; i<text.length;i++)
+    {
+        if(text[i] == Chara)
+        {
+            entra(true); 
+            alert("Nah nah Correo inválido mother4ker"); 
+        }
+    }
+    
+}
 
 
 
