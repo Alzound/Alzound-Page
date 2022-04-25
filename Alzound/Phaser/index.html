@@ -2,48 +2,127 @@
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.17.0/dist/phaser.js"></script>
 </head>
 <body>
 
     <script>
-    var config = {
-        type: Phaser.AUTO,
-        
-        width: 1920,
-        height: 1080,
-        physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 400, x: 100 }
-            }
-        },
-        scene: {
-            preload: preload,
-            create: create
-        }
-    };
-
-    var game = new Phaser.Game(config);
+   
 
     function preload ()
     {
-        //this.load.setBaseURL('http://labs.phaser.io');
 
- 
-        this.load.image('sky', 'assets/skies/space3.png');
         this.load.image('Amy', 'amy.png');
         this.load.image('Bubble', 'bubbleText.png');
-        this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        this.load.image('red', 'assets/particles/yellow.png');
+        this.load.image('bullet', 'alert.png');
+        this.load.image('player', 'eye.png'); 
     }
 
+    
+class Example extends Phaser.Scene
+{
+    constructor ()
+    {
+        super();
+
+        this.bullets;
+        this.player;
+    }
+
+    preload ()
+    {
+        this.load.image('bullet', 'alert2.png');
+        this.load.image('player', 'eye2.png'); 
+    }
+
+    create ()
+    {
+        this.bullets = new Bullets(this);
+
+        this.player = this.add.image(0, 1, 'player');
+        
+        this.input.on('pointermove', (pointer) => {
+
+            this.player.x = pointer.x;
+            this.player.y = pointer.y; 
+
+        });
+
+        this.input.on('pointerdown', (pointer) => {
+
+            this.bullets.fireBullet(this.player.x, this.player.y);
+
+        });
+    }
+}
+
+
+    class Bullet extends Phaser.Physics.Arcade.Sprite
+{
+    constructor (scene, x, y)
+    {
+        super(scene, x, y, 'bullet');
+    }
+
+    fire (x, y)
+    {
+        this.body.reset(x, y);
+
+        this.setActive(true);
+        this.setVisible(true);
+
+        this.setVelocityY(-800);
+    }
+
+    preUpdate (time, delta)
+    {
+        super.preUpdate(time, delta);
+
+        if (this.y <= -32)
+        {
+            this.setActive(false);
+            this.setVisible(false);
+        }
+    }
+}
+
+class Bullets extends Phaser.Physics.Arcade.Group
+{
+    constructor (scene)
+    {
+        super(scene.physics.world, scene);
+
+        this.createMultiple({
+            frameQuantity: 100,
+            key: 'bullet',
+            active: false,
+            visible: false,
+            classType: Bullet
+        });
+    }
+
+    fireBullet (x, y)
+    {
+        let bullet = this.getFirstDead(false);
+
+        if (bullet)
+        {
+            bullet.fire(x, y);
+        }
+    }
+}
+
+
+
+//World create
     function create ()
     {
-        this.physics.world.setBoundsCollision(true, true, true, false);
+        this.physics.world.setBoundsCollision(true, true, true, true);
         this.add.image(150, 900, 'Amy');
         
         //this.add.image(400, 400, 'sky');
         
+        /*
         var particles = this.add.particles('Amy');
 
         var emitter = particles.createEmitter({
@@ -59,15 +138,46 @@
             scale: { start: 1, end: 0 },
             blendMode: 'ADD'
         });
+        */
 
-        var logo = this.physics.add.image(400, 100, 'logo');
+        //var logo = this.physics.add.image(400, 100, 'logo');
 
+        /*
         logo.setVelocity(100, 200);
         logo.setBounce(1, 1);
         logo.setCollideWorldBounds(true);
 
+        
         emitter.startFollow(logo);
+        */
     }
+
+    var config = {
+        type: Phaser.AUTO,
+        
+        width: 1920,
+        height: 1080,
+        parent:'phaser-example',
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 0, x: 0 }
+            }
+        },
+        scene: Example
+        /*
+        scene:
+        {
+            preload: preload,
+            create: create,
+            
+        
+        }
+          */  
+           
+    };
+
+    var game = new Phaser.Game(config);
     </script>
 
 </body>
