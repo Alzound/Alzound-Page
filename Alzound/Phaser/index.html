@@ -9,17 +9,9 @@
     <script>
    
 
-    function preload ()
-    {
-
-        this.load.image('Amy', 'amy.png');
-        this.load.image('Bubble', 'bubbleText.png');
-        this.load.image('bullet', 'alert.png');
-        this.load.image('player', 'eye.png'); 
-    }
 
     
-class Example extends Phaser.Scene
+class BulletHell extends Phaser.Scene
 {
     constructor ()
     {
@@ -31,20 +23,69 @@ class Example extends Phaser.Scene
 
     preload ()
     {
+        this.load.image('Chaos', 'BackgroundChaos.png');
+        this.load.image('Amy', 'amy.png');
+        this.load.image('Bubble', 'bubbleText.png');
         this.load.image('bullet', 'alert2.png');
-        this.load.image('player', 'eye2.png'); 
+        this.load.image('player', 'eye3.png'); 
+        this.load.image('BHypnotic', 'B_hypnotic.png');
+        this.load.image('BHypnotic1', 'B_hypnotic1.png');
+        this.load.image('brain', 'brain2.png'); 
+
+
+        this.load.spritesheet('balls', 'eye2.png', { frameWidth: 17, frameHeight: 17 });
     }
 
     create ()
     {
+        //Bounds of the world, because...
+        this.physics.world.setBoundsCollision(true, true, true, true);
+
+        
+        //Background
+        this.add.image(1920/2, 1080/2, 'BHypnotic');
+        //Enemy
+        this.add.image(1920/2, 1080/2, 'brain');
+        //Story character
+        this.add.image(200, 900, 'Amy');
+
+        //Enemy health bar
+        let EhealthBar = this.makeBar(750, 325, 0x01fe00);
+        this.setValue(EhealthBar, 200);
+
+        //Obstacles
+        const circle = new Phaser.Geom.Circle(1920/2, 1080/2, 220);
+
+        this.group = this.add.group({ key: 'balls', frame: [0, 0, 0], repeat: 10 });
+
+        Phaser.Actions.PlaceOnCircle(this.group.getChildren(), circle);
+
+        this.tween = this.tweens.addCounter({
+            from: 600,
+            to: 100,
+            duration: 3000,
+            delay: 2000,
+            ease: 'Sine.easeInOut',
+            repeat: -1,
+            yoyo: true
+        });
+        
+        update ()
+        {
+            Phaser.Actions.RotateAroundDistance(this.group.getChildren(), { x: 400, y: 300 }, 0.02, this.tween.getValue());
+        }
+        
+        //const text = this.add.text(450, 900, 'Text', { font: '25px Courier', fill: '#FFFFFF' });
         this.bullets = new Bullets(this);
 
         this.player = this.add.image(0, 1, 'player');
         
+        //const circle = new Phaser.Geom.Circle(0, 0, 0);
+
         this.input.on('pointermove', (pointer) => {
 
-            this.player.x = pointer.x;
-            this.player.y = pointer.y; 
+            this.player.x = pointer.x ;
+            this.player.y = pointer.y ; 
 
         });
 
@@ -53,7 +94,55 @@ class Example extends Phaser.Scene
             this.bullets.fireBullet(this.player.x, this.player.y);
 
         });
+
+        
     }
+
+    makeBar(x, y,color) 
+    {
+        //draw the bar
+        let bar = this.add.graphics();
+
+        //color the bar
+        bar.fillStyle(color, 1);
+
+        //fill the bar with a rectangle
+        bar.fillRect(0, 0, 200, 30);
+        
+        //position the bar
+        bar.x = x;
+        bar.y = y;
+
+        //return the bar
+        return bar;
+    }
+
+    setValue(bar,percentage) 
+    {
+        
+        //scale the bar
+        bar.scaleX = percentage/100;
+        
+        
+        if(bar.scaleX > 50 && bar.scaleX < 75)
+        {
+            EhealthBar = this.makeBar(750, 325,  0xffff00)
+        }
+
+        if(bar.scaleX > 30 && bar.scaleX < 50)
+        {
+            EhealthBar = this.makeBar(750, 325,  0xff9004)
+        }
+        /*
+        if(bar.scaleX > 0 && bar.scaleX < 30)
+        {
+            EhealthBar = this.makeBar(750, 325,  0xff0304)
+        }
+        */
+        
+        
+    }
+
 }
 
 
@@ -114,43 +203,7 @@ class Bullets extends Phaser.Physics.Arcade.Group
 
 
 
-//World create
-    function create ()
-    {
-        this.physics.world.setBoundsCollision(true, true, true, true);
-        this.add.image(150, 900, 'Amy');
-        
-        //this.add.image(400, 400, 'sky');
-        
-        /*
-        var particles = this.add.particles('Amy');
 
-        var emitter = particles.createEmitter({
-            speed: 0,
-            physics: 
-            {
-                default: 'arcade',
-                arcade: 
-                {
-                    gravity: { y: 400, x: 0 }
-                }
-            },
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD'
-        });
-        */
-
-        //var logo = this.physics.add.image(400, 100, 'logo');
-
-        /*
-        logo.setVelocity(100, 200);
-        logo.setBounce(1, 1);
-        logo.setCollideWorldBounds(true);
-
-        
-        emitter.startFollow(logo);
-        */
-    }
 
     var config = {
         type: Phaser.AUTO,
@@ -164,7 +217,7 @@ class Bullets extends Phaser.Physics.Arcade.Group
                 gravity: { y: 0, x: 0 }
             }
         },
-        scene: Example
+        scene: BulletHell
         /*
         scene:
         {
