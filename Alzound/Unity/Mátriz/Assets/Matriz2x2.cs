@@ -163,8 +163,14 @@ public class Matriz2x2
         }
 		else
 		{
-            Matriz2x2 rI = new Matriz2x2(a * det, b * det, c * det, d * det);
+            /*
+            Debug.Log("Inversa"); 
+            Matriz2x2 rI = new Matriz2x2(a * det, b * det, -c * det, d * det);
             return rI;
+            */
+       
+            Matriz2x2 rI = new Matriz2x2(d/(a*d-b*c), -b/(a*d - b*c), -c/(a*d-b*c), a/(a*d-b*c));
+            return rI; 
         }
          
         // Aquí va su código.
@@ -215,12 +221,14 @@ public class Matriz2x2
             return false;
         }   
         Matriz2x2 m = (Matriz2x2)o;
-        if(m == o)
+        if (m.GetA() == a && m.GetB() == b && m.GetC() == c && m.GetD() == d)
         {
-            Debug.Log("true"); 
-            return true; 
+            Debug.Log("true");
+            return true;
         }
-        return true; 
+        else return false;  
+
+         
         
     }
 
