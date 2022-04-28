@@ -114,7 +114,7 @@ public class Matriz2x2
      */
     public Matriz2x2 Multiplica(Matriz2x2 m)
     {
-        Matriz2x2 rm = new Matriz2x2((m.GetA() * a) + (m.GetC() * b), (m.GetA() * c + m.GetC() * d), (m.GetB() * a + m.GetD() * b),(m.GetB() * c + m.GetD() * d));
+        Matriz2x2 rm = new Matriz2x2((m.GetA() * a) + (m.GetB() * c), (m.GetA() * b + m.GetB() * d), (m.GetC() * a + m.GetD() * c),(m.GetC() * b + m.GetD() * d));
         // Aquí va su código.
         return rm;
     }
@@ -182,13 +182,16 @@ public class Matriz2x2
      */
     public Matriz2x2 Potencia(int n)
     {
+        
         Matriz2x2 m = new Matriz2x2(a, b, c, d);
+
         if (n < 2)
             return m;
         while (n > 1)
         {
             m = m.Multiplica(this);
             n--;
+ 
         }
         return m;
     }
@@ -212,8 +215,13 @@ public class Matriz2x2
             return false;
         }   
         Matriz2x2 m = (Matriz2x2)o;
-        // Aquí va su código.
-        return true;
+        if(m == o)
+        {
+            Debug.Log("true"); 
+            return true; 
+        }
+        return true; 
+        
     }
 
     /**

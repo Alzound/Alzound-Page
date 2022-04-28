@@ -20,14 +20,14 @@ public class Practica4 : MonoBehaviour
                                     Random.value * 100);
         
         /*
-        Matriz2x2 m = new Matriz2x2(2,
-                                    3,
-                                    4,
+        Matriz2x2 m = new Matriz2x2(1,
+                                    0,
+                                    2,
                                     1);
         Matriz2x2 n = new Matriz2x2(1,
-                                    2,
                                     0,
-                                    0);
+                                    2,
+                                    1);
         */
 
         Debug.Log("m:");
