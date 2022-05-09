@@ -33,7 +33,19 @@ class BulletHell extends Phaser.Scene
         this.load.image('brain', 'brain2.png'); 
 
 
-        this.load.spritesheet('balls', 'nube.png', { frameWidth: 17, frameHeight: 17 });
+        this.load.image('balls', 'nube.png');
+
+        var attackA, attackB; 
+        var tweenB;
+        //var distacia = 0, vel = 0.3; 
+        this.distancia = 200;
+        this.distanciaA = 160; 
+        this.distanciaB = 120;
+        this.distanciaB = 80; 
+
+       
+
+    
     }
 
     create ()
@@ -41,6 +53,8 @@ class BulletHell extends Phaser.Scene
         //Bounds of the world, because...
         this.physics.world.setBoundsCollision(true, true, true, true);
 
+        //this.physics.add.collider(attackA);this.physics.add.collider(attackA);
+        //this.physics.add.collider(player, attackA, attackB, null, this);
         
         //Background
         this.add.image(1920/2, 1080/2, 'BHypnotic');
@@ -53,12 +67,20 @@ class BulletHell extends Phaser.Scene
         let EhealthBar = this.makeBar(750, 325, 0x01fe00);
         this.setValue(EhealthBar, 200);
 
+        /*
+         //Límites del mundo. 
+        const rect = new Phaser.Geom.Rectangle(450, 0, 2000, 2000);
+        const group = this.add.group({ key: 'balls', frameQuantity: 32 });
+        Phaser.Actions.PlaceOnRectangle(group.getChildren(), rect);
+        */
+
         //Obstacles
         const circle = new Phaser.Geom.Circle(1920/2, 1080/2, 220);
+        
+        this.attackA = this.physics.add.group({ key: 'balls', frame: [0, 0, 0], repeat: 5 });
+        
 
-        this.group = this.add.group({ key: 'balls', frame: [0, 0, 0], repeat: 5 });
-
-        Phaser.Actions.PlaceOnCircle(this.group.getChildren(), circle);
+        Phaser.Actions.PlaceOnCircle(this.attackA.getChildren(), circle);
 
         this.tween = this.tweens.addCounter({
             from: 600,
@@ -70,6 +92,34 @@ class BulletHell extends Phaser.Scene
             yoyo: true
         });
         
+        //Ataque estacionario. 
+        const semiCircle = new Phaser.Geom.Circle(1920/2, 1080/2, 120);
+
+        this.attackB = this.physics.add.group({ key: 'balls', frame: [0, 0, 0], repeat: 3 });
+
+        Phaser.Actions.PlaceOnCircle(this.attackB.getChildren(), semiCircle);
+
+        this.tweenB = this.tweens.addCounter({
+            from: 200,
+            to: 100,
+            duration: 6000,
+            delay: 3000,
+            ease: 'Sine.easeInOut',
+            repeat: -2,
+            yoyo: true
+        });
+
+        //Attacks
+        this.group1 = this.add.group({ key: 'balls', frameQuantity: 16 });
+        this.group2 = this.add.group({ key: 'balls', frameQuantity: 16 });
+        this.group3 = this.add.group({ key: 'balls', frameQuantity: 16 });
+        this.group4 = this.add.group({ key: 'balls', frameQuantity: 16 });
+
+        Phaser.Actions.PlaceOnCircle(this.group1.getChildren(), { x: 1920/2, y: 1080/2, radius: 200 });
+        Phaser.Actions.PlaceOnCircle(this.group2.getChildren(), { x: 1920/2, y: 1080/2, radius: 160 });
+        Phaser.Actions.PlaceOnCircle(this.group3.getChildren(), { x: 1920/2, y: 1080/2, radius: 120 });
+        Phaser.Actions.PlaceOnCircle(this.group4.getChildren(), { x: 1920/2, y: 1080/2, radius: 80 });
+        
         
         
         //const text = this.add.text(450, 900, 'Text', { font: '25px Courier', fill: '#FFFFFF' });
@@ -78,26 +128,81 @@ class BulletHell extends Phaser.Scene
         this.player = this.add.image(0, 1, 'player');
         
         //const circle = new Phaser.Geom.Circle(0, 0, 0);
+        //this.physics.add.collider(attackA, attackB);
+
 
         this.input.on('pointermove', (pointer) => {
 
+            
             this.player.x = pointer.x ;
             this.player.y = pointer.y ; 
+            
+            //this.player.x = Phaser.Actions.RotateAroundDistance([this.player], this.center, pointer.x, 250); 
+            //this.player.y = Phaser.Actions.RotateAroundDistance([this.player], this.center, pointer.y, 250);
 
         });
 
         this.input.on('pointerdown', (pointer) => {
+            /*
+            const vec = this.physics.velocityFromAngle(rect.angle, 1)
+            const dx = vec.x * 50
+            const dy = vec.y * 50
+            */
 
-            this.bullets.fireBullet(this.player.x, this.player.y);
+            //Phaser.Actions.RotateAroundDistance(this.player, { x: 1920/2, y: 1080/2 }, 0.1, 100 ); 
+            this.angleDeg = Math.atan2({x: this.player.y - this.center.y, y: this.player.x - this.center.x}) * 180 / Math.PI;
+            this.player.angle = this.angleDeg+90 
+            this.bullets.fireBullet(this.player.x, this.player.y, this.player.angle);
 
         });
 
-        
+        this.physics.add.collider(attackA, attackB);
     }
 
     update ()
         {
-            Phaser.Actions.RotateAroundDistance(this.group.getChildren(), { x: 1920/2, y: 1080/2 }, 0.1, this.tween.getValue());
+            //Esto es para que el jugador se quede viendo hacia el centro del escenario, y a su vez este alrededor del mismo. 
+            //const angleDeg = Math.atan2(this.player.y - this.center.y, this.player.x - this.center.x) * 180 / Math.PI;
+            //this.player.angle = angleDeg+90 
+
+
+            //Esto es para que se actualicen las animaciones de los ataques estáticos. 
+            Phaser.Actions.RotateAroundDistance(this.attackA.getChildren(), { x: 1920/2, y: 1080/2 }, 0.1, this.tween.getValue());
+            Phaser.Actions.RotateAroundDistance(this.attackB.getChildren(), { x: 1920/2, y: 1080/2 }, 0.1, this.tweenB.getValue());
+
+
+            Phaser.Actions.RotateAroundDistance(this.group1.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distancia);
+            Phaser.Actions.RotateAroundDistance(this.group2.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distanciaA);
+            Phaser.Actions.RotateAroundDistance(this.group3.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distanciaB);
+            Phaser.Actions.RotateAroundDistance(this.group4.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distanciaC);
+
+            
+            /*
+            if(this.distancia <= 200)
+            {
+                this.distancia += 4;
+                this.distanciaA += 3;
+                this.distanciaB += 2;
+                this.distanciaC += 1;
+            }
+            */
+                this.distancia += 4;
+                this.distanciaA += 3;
+                this.distanciaB += 2;
+                this.distanciaC += 1;
+            
+
+            if(this.distancia >= 1200)
+            {
+                this.distancia = 200; 
+                this.distanciaA = 160; 
+                this.distanciaB = 120;
+                this.distanciaC = 80;
+            }
+
+            //Phaser.Actions.RotateAroundDistance([this.player], this.center, this.player.x, 250);
+            // container should face the center point
+    
         }
 
     makeBar(x, y,color) 
@@ -144,6 +249,18 @@ class BulletHell extends Phaser.Scene
         
         
     }
+/*
+    function hitBomb (player, bomb)
+{
+    this.physics.pause();
+
+    player.setTint(0xff0000);
+
+    player.anims.play('turn');
+
+    gameOver = true;
+}
+*/
 
 }
 
@@ -155,14 +272,14 @@ class BulletHell extends Phaser.Scene
         super(scene, x, y, 'bullet');
     }
 
-    fire (x, y)
+    fire (x, y, angle)
     {
         this.body.reset(x, y);
 
         this.setActive(true);
         this.setVisible(true);
 
-        this.setVelocityY(-800);
+        this.setVelocityY(-1000);
     }
 
     preUpdate (time, delta)
@@ -192,13 +309,19 @@ class Bullets extends Phaser.Physics.Arcade.Group
         });
     }
 
-    fireBullet (x, y)
+    fireBullet (x, y, angle)
     {
+     /*    
+        const vec = this.physics.velocityFromAngle(rect.angle, 1)
+        const dx = vec.x * 50
+        const dy = vec.y * 50
+       */     
+
         let bullet = this.getFirstDead(false);
 
         if (bullet)
         {
-            bullet.fire(x, y);
+            bullet.fire(x, y, angle);
         }
     }
 }

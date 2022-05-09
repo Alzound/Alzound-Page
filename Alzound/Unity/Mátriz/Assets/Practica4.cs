@@ -7,12 +7,7 @@ public class Practica4 : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
-    {/*
-        if (!GetComponent<MeshRenderer>().isVisible)
-        {
-
-        }
-        */
+    {
         //Random r = new Random();
         
         Matriz2x2 m = new Matriz2x2(Random.value * 100,
@@ -23,9 +18,10 @@ public class Practica4 : MonoBehaviour
                                     Random.value * 100,
                                     Random.value * 100,
                                     Random.value * 100);
+        
         /*
-        Matriz2x2 m = new Matriz2x2(3,
-                                    7,
+        Matriz2x2 m = new Matriz2x2(1,
+                                    0,
                                     2,
                                     1);
         Matriz2x2 n = new Matriz2x2(1,
