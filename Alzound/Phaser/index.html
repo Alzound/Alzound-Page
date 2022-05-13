@@ -128,7 +128,7 @@ class BulletHell extends Phaser.Scene
 
         this.player = this.physics.add.image(0, 1, 'player');
         this.brain = this.physics.add.image(1920/2, 1080/2, 'brain').setImmovable(true);
-        this.brain.body.setSize(this.brain.width, this.brain.height, true); 
+        this.brain.setCircle(100,100);
         //this.brain.physics.body.allowGravity = false; 
         //this.brain = this.physics.add.staticGroup(); 
         
@@ -158,7 +158,7 @@ class BulletHell extends Phaser.Scene
             //this.angleDeg = Math.atan2({x: this.player.y - this.center.y, y: this.player.x - this.center.x}) * 180 / Math.PI;
             //this.player.angle = this.player.angle + 90;//this.angleDeg+90 
             this.bullets.fireBullet(this.player.x, this.player.y, this.player.angle);
-
+            
         });
 
         this.physics.add.collider(this.player, this.attackA);
@@ -179,11 +179,6 @@ class BulletHell extends Phaser.Scene
             //Esto es para que el jugador se quede viendo hacia el centro del escenario, y a su vez este alrededor del mismo. 
             //const angleDeg = Math.atan2(this.player.y - this.center.y, this.player.x - this.center.x) * 180 / Math.PI;
             //this.player.angle = angleDeg+90 
-
-            if(this.num == 100)
-             {
-                 Dead(); 
-            }
 
 
             //Esto es para que se actualicen las animaciones de los ataques estáticos. 
