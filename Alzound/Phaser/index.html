@@ -19,6 +19,7 @@ class BulletHell extends Phaser.Scene
 
         this.bullets;
         this.player;
+        this.brain;
     }
 
     preload ()
@@ -37,6 +38,7 @@ class BulletHell extends Phaser.Scene
 
         var attackA, attackB; 
         var tweenB;
+        var gameOver = false;
         //var distacia = 0, vel = 0.3; 
         this.distancia = 200;
         this.distanciaA = 160; 
@@ -53,13 +55,11 @@ class BulletHell extends Phaser.Scene
         //Bounds of the world, because...
         this.physics.world.setBoundsCollision(true, true, true, true);
 
-        //this.physics.add.collider(attackA);this.physics.add.collider(attackA);
-        //this.physics.add.collider(player, attackA, attackB, null, this);
         
         //Background
         this.add.image(1920/2, 1080/2, 'BHypnotic');
         //Enemy
-        this.add.image(1920/2, 1080/2, 'brain');
+        //this.add.image(1920/2, 1080/2, 'brain');
         //Story character
         this.add.image(200, 900, 'Amy');
 
@@ -125,7 +125,9 @@ class BulletHell extends Phaser.Scene
         //const text = this.add.text(450, 900, 'Text', { font: '25px Courier', fill: '#FFFFFF' });
         this.bullets = new Bullets(this);
 
-        this.player = this.add.image(0, 1, 'player');
+        this.player = this.physics.add.image(0, 1, 'player');
+        this.brain = this.physics.add.image(1920/2, 1080/2, 'brain');
+        //this.brain = this.physics.add.staticGroup(); 
         
         //const circle = new Phaser.Geom.Circle(0, 0, 0);
         //this.physics.add.collider(attackA, attackB);
@@ -150,13 +152,22 @@ class BulletHell extends Phaser.Scene
             */
 
             //Phaser.Actions.RotateAroundDistance(this.player, { x: 1920/2, y: 1080/2 }, 0.1, 100 ); 
-            this.angleDeg = Math.atan2({x: this.player.y - this.center.y, y: this.player.x - this.center.x}) * 180 / Math.PI;
-            this.player.angle = this.angleDeg+90 
+            //this.angleDeg = Math.atan2({x: this.player.y - this.center.y, y: this.player.x - this.center.x}) * 180 / Math.PI;
+            //this.player.angle = this.player.angle + 90;//this.angleDeg+90 
             this.bullets.fireBullet(this.player.x, this.player.y, this.player.angle);
 
         });
 
-        //this.physics.add.collider(attackA, attackB);
+        this.physics.add.collider(this.player, this.attackA);
+        this.physics.add.collider(this.player, this.attackB);
+        this.physics.add.collider(this.bullets, this.attackB);
+        this.physics.add.collider(this.bullets, this.attackA);
+        this.physics.add.collider(this.bullets, this.brain);
+        this.physics.add.collider(this.player, this.attackA, HitClose, null, this);
+        this.physics.add.collider(this.player, this.attackB, HitClose, null, this);
+        this.physics.add.collider(this.bullets, this.brain, HitEnemy, null, this);
+        this.physics.add.collider(this.bullets, this.attackA ,DestroyBullet, null, this);   
+        this.physics.add.collider(this.bullets, this.attackB, DestroyBullet, null, this);  
     }
 
     update ()
@@ -176,16 +187,7 @@ class BulletHell extends Phaser.Scene
             Phaser.Actions.RotateAroundDistance(this.group3.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distanciaB);
             Phaser.Actions.RotateAroundDistance(this.group4.getChildren(), { x: 1920/2, y: 1080/2 }, 0.02, this.distanciaC);
 
-            
-            /*
-            if(this.distancia <= 200)
-            {
-                this.distancia += 4;
-                this.distanciaA += 3;
-                this.distanciaB += 2;
-                this.distanciaC += 1;
-            }
-            */
+
                 this.distancia += 4;
                 this.distanciaA += 3;
                 this.distanciaB += 2;
@@ -199,11 +201,10 @@ class BulletHell extends Phaser.Scene
                 this.distanciaB = 120;
                 this.distanciaC = 80;
             }
-
-            //Phaser.Actions.RotateAroundDistance([this.player], this.center, this.player.x, 250);
-            // container should face the center point
     
         }
+
+   
 
     makeBar(x, y,color) 
     {
@@ -240,27 +241,9 @@ class BulletHell extends Phaser.Scene
         {
             EhealthBar = this.makeBar(750, 325,  0xff9004)
         }
-        /*
-        if(bar.scaleX > 0 && bar.scaleX < 30)
-        {
-            EhealthBar = this.makeBar(750, 325,  0xff0304)
-        }
-        */
         
         
     }
-/*
-    function hitBomb (player, bomb)
-{
-    this.physics.pause();
-
-    player.setTint(0xff0000);
-
-    player.anims.play('turn');
-
-    gameOver = true;
-}
-*/
 
 }
 
@@ -280,7 +263,10 @@ class BulletHell extends Phaser.Scene
         this.setVisible(true);
 
         this.setVelocityY(-1000);
+    
     }
+
+    
 
     preUpdate (time, delta)
     {
@@ -326,6 +312,35 @@ class Bullets extends Phaser.Physics.Arcade.Group
     }
 }
 
+function HitClose(player, bomb)
+    {
+        
+        this.physics.pause();
+
+        player.setTint(0xff0000);
+
+       
+
+        this.registry.destroy(); // destroy registry
+        this.events.off(); // disable all active events
+        this.scene.restart(); // restart current scene
+    }
+
+    function HitEnemy(enemy, bullet)
+    {
+        enemy.setTint(0xff0000);
+        this.physics.pause();
+        this.registry.destroy(); // destroy registry
+        this.events.off(); // disable all active events
+        this.scene.restart(); // restart current scene
+    }
+    function DestroyBullet(bullet, attack)
+    {
+        console.log("entra"); 
+        bullet.destroy(); 
+        
+        
+    }
 
 
 
