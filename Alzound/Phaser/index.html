@@ -38,6 +38,7 @@ class BulletHell extends Phaser.Scene
 
         var attackA, attackB; 
         var tweenB;
+        var num = 0; 
         var gameOver = false;
         //var distacia = 0, vel = 0.3; 
         this.distancia = 200;
@@ -126,7 +127,9 @@ class BulletHell extends Phaser.Scene
         this.bullets = new Bullets(this);
 
         this.player = this.physics.add.image(0, 1, 'player');
-        this.brain = this.physics.add.image(1920/2, 1080/2, 'brain');
+        this.brain = this.physics.add.image(1920/2, 1080/2, 'brain').setImmovable(true);
+        this.brain.body.setSize(this.brain.width, this.brain.height, true); 
+        //this.brain.physics.body.allowGravity = false; 
         //this.brain = this.physics.add.staticGroup(); 
         
         //const circle = new Phaser.Geom.Circle(0, 0, 0);
@@ -168,6 +171,7 @@ class BulletHell extends Phaser.Scene
         this.physics.add.collider(this.bullets, this.brain, HitEnemy, null, this);
         this.physics.add.collider(this.bullets, this.attackA ,DestroyBullet, null, this);   
         this.physics.add.collider(this.bullets, this.attackB, DestroyBullet, null, this);  
+        this.physics.add.collider(this.bullets, this.brain, DestroyBullet, null, this);
     }
 
     update ()
@@ -175,6 +179,11 @@ class BulletHell extends Phaser.Scene
             //Esto es para que el jugador se quede viendo hacia el centro del escenario, y a su vez este alrededor del mismo. 
             //const angleDeg = Math.atan2(this.player.y - this.center.y, this.player.x - this.center.x) * 180 / Math.PI;
             //this.player.angle = angleDeg+90 
+
+            if(this.num == 100)
+             {
+                 Dead(); 
+            }
 
 
             //Esto es para que se actualicen las animaciones de los ataques estáticos. 
@@ -314,7 +323,7 @@ class Bullets extends Phaser.Physics.Arcade.Group
 
 function HitClose(player, bomb)
     {
-        
+         
         this.physics.pause();
 
         player.setTint(0xff0000);
@@ -328,20 +337,29 @@ function HitClose(player, bomb)
 
     function HitEnemy(enemy, bullet)
     {
+        this.physics.pause();
+        console.log("enemigo");
         enemy.setTint(0xff0000);
         this.physics.pause();
         this.registry.destroy(); // destroy registry
         this.events.off(); // disable all active events
         this.scene.restart(); // restart current scene
     }
-    function DestroyBullet(bullet, attack)
+    function DestroyBullet(bullet, attack, num)
     {
-        console.log("entra"); 
+        num++;
         bullet.destroy(); 
         
         
     }
-
+    function Dead()
+    {
+        
+        this.physics.pause();
+        this.registry.destroy(); // destroy registry
+        this.events.off(); // disable all active events
+        this.scene.restart(); // restart current scene
+    }
 
 
 
